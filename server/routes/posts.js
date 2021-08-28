@@ -1,11 +1,9 @@
 const express = require('express');
+const {getPosts} = require('../controllers/posts.js')
 
 const router = express.Router()
 
-router.get('/', (req, res)=>{
-    res.send('THIS WORKS')
-
-})
+router.get('/', getPosts)
 
 module.exports = {
     postRoutes: router

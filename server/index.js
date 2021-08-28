@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose')
 const cors = require('cors');
 
-const {postRoutes} = require('./routes/posts')
+const {postRoutes} = require('./routes/posts.js')
 
 const app = express();
 
