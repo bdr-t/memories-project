@@ -13,10 +13,12 @@ import { GoogleLogin } from "react-google-login";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 
 import Icon from './Icon';
-// import { signin, signup } from '../../actions/auth';
+import { signin, signup } from '../../actions/auth';
 // import { AUTH } from '../../constants/actionTypes';
 import useStyles from "./styles";
 import Input from "./Input";
+
+const initialState = { firstName: '', lastName: '', email: '', password: '', confirmPassword: '' };
 
 const Auth = () => {
   //Classes  
@@ -28,13 +30,23 @@ const Auth = () => {
   //State
   const [showPassword, setShowPassword] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
+  const [formData, setFormData] = useState(initialState)
 
   //history
   const history = useHistory()
 
-  function handleSubmit() {}
+  function handleSubmit(e) {
+    e.preventDefault()
+    if(isSignup){
+      dispatch(signup(formData, history))
+    } else{
+      dispatch(signin(formatData, history))
+    }
+  }
 
-  function handleChange() {}
+  function handleChange(e) {
+    setFormData({...formData, [e.target.name]: e.target.value})
+  }
 
   function switchMode() {
     setIsSignup((previsSignup) => !previsSignup);
