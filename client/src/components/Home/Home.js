@@ -1,67 +1,52 @@
+import React, { useState } from 'react';
 import { Container, Grow, Grid, AppBar, TextField, Button, Paper } from '@material-ui/core';
+import { useDispatch } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
 import ChipInput from 'material-ui-chip-input';
-import Posts from '../Posts/Posts'
-import Form from "../Form/Form"
-import {useDispatch} from 'react-redux'
-import {useEffect, useState} from 'react'
-import {getPosts, getPostsBySearch} from '../../actions/posts'
-import useStyles from '../../App.styles'
-import Paginate from '../Pagination'
 
+import { getPostsBySearch } from '../../actions/posts';
+import Posts from '../Posts/Posts';
+import Form from '../Form/Form';
+import Pagination from '../Pagination';
+import useStyles from './styles';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
-
-
-
 const Home = () => {
-    //styles
-    const classes = useStyles()
+  const classes = useStyles();
+  const query = useQuery();
+  const page = query.get('page') || 1;
+  const searchQuery = query.get('searchQuery');
 
-    //dispatch
-    const dispatch = useDispatch()
+  const [currentId, setCurrentId] = useState(0);
+  const dispatch = useDispatch();
 
-    //state
-    const [currentId, setCurrentId] = useState(null)
-    const [search, setSearch] = useState('')
-    const [tags, setTags] = useState([])
-
-    //effects
-    useEffect(()=>{
-        dispatch(getPosts())
-    },[currentId, dispatch])
-
-    //query
-    const query = useQuery()
-    const history = useHistory()
-    const page = query.get('page') || 1
-    const searchQuery = query.get('searchQuery')
-
-    //actions
-    const handleKeyPress = (e) => {
-      if (e.keyCode === 13) {
-        searchPost()
-        
-      }
-    };
-
-    const handleAddChip = (tag) => setTags([...tags, tag]);
-
-  const handleDeleteChip = (chipToDelete) => setTags(tags.filter((tag) => tag !== chipToDelete));
+  const [search, setSearch] = useState('');
+  const [tags, setTags] = useState([]);
+  const history = useHistory();
 
   const searchPost = () => {
     if (search.trim() || tags) {
       dispatch(getPostsBySearch({ search, tags: tags.join(',') }));
-      // history.push(`/posts/search?searchQuery=${search || 'none'}&tags=${tags.join(',')}`);
+      history.push(`/posts/search?searchQuery=${search || 'none'}&tags=${tags.join(',')}`);
     } else {
       history.push('/');
     }
   };
 
-    return ( 
-        <Grow in>
+  const handleKeyPress = (e) => {
+    if (e.keyCode === 13) {
+      searchPost();
+    }
+  };
+
+  const handleAddChip = (tag) => setTags([...tags, tag]);
+
+  const handleDeleteChip = (chipToDelete) => setTags(tags.filter((tag) => tag !== chipToDelete));
+
+  return (
+    <Grow in>
       <Container maxWidth="xl">
         <Grid container justify="space-between" alignItems="stretch" spacing={3} className={classes.gridContainer}>
           <Grid item xs={12} sm={6} md={9}>
@@ -69,15 +54,7 @@ const Home = () => {
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <AppBar className={classes.appBarSearch} position="static" color="inherit">
-              <TextField 
-              name="search" 
-              variant="outlined" 
-              label="Search Memories" 
-              fullWidth 
-              value={search}
-              onChange={(e) => setCurrentId(e.target.value)} 
-              onKeyDown={handleKeyPress}
-              />
+              <TextField onKeyDown={handleKeyPress} name="search" variant="outlined" label="Search Memories" fullWidth value={search} onChange={(e) => setSearch(e.target.value)} />
               <ChipInput
                 style={{ margin: '10px 0' }}
                 value={tags}
@@ -89,14 +66,16 @@ const Home = () => {
               <Button onClick={searchPost} className={classes.searchButton} variant="contained" color="primary">Search</Button>
             </AppBar>
             <Form currentId={currentId} setCurrentId={setCurrentId} />
-            <Paper elevation={6}>
-              <Paginate />
-            </Paper>
+            {(!searchQuery && !tags.length) && (
+              <Paper className={classes.pagination} elevation={6}>
+                <Pagination page={page} />
+              </Paper>
+            )}
           </Grid>
         </Grid>
       </Container>
     </Grow>
-     );
-}
- 
+  );
+};
+
 export default Home;
