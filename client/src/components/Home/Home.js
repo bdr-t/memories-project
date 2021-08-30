@@ -1,4 +1,6 @@
-import {Container, Grow, Grid, Paper} from '@material-ui/core'
+import { Container, Grow, Grid, AppBar, TextField, Button, Paper } from '@material-ui/core';
+import { useHistory, useLocation } from 'react-router-dom';
+import ChipInput from 'material-ui-chip-input';
 import Posts from '../Posts/Posts'
 import Form from "../Form/Form"
 import {useDispatch} from 'react-redux'
@@ -7,6 +9,10 @@ import {getPosts} from '../../actions/posts'
 import useStyles from '../../App.styles'
 import Paginate from '../Pagination'
 
+
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
 
 
 
@@ -19,28 +25,77 @@ const Home = () => {
 
     //state
     const [currentId, setCurrentId] = useState(null)
+    const [search, setSearch] = useState('')
+    const [tags, setTags] = useState([])
 
     //effects
     useEffect(()=>{
         dispatch(getPosts())
     },[currentId, dispatch])
 
+    //query
+    const query = useQuery()
+    const history = useHistory()
+    const page = query.get('page') || 1
+    const searchQuery = query.get('searchQuery')
+
+    //actions
+    const handleKeyPress = (e) => {
+      if (e.keyCode === 13) {
+        searchPost()
+        
+      }
+    };
+
+    const handleAddChip = (tag) => setTags([...tags, tag]);
+
+  const handleDeleteChip = (chipToDelete) => setTags(tags.filter((tag) => tag !== chipToDelete));
+
+  const searchPost = () => {
+    if (search.trim() || tags) {
+      // dispatch(getPostsBySearch({ search, tags: tags.join(',') }));
+      // history.push(`/posts/search?searchQuery=${search || 'none'}&tags=${tags.join(',')}`);
+    } else {
+      history.push('/');
+    }
+  };
+
     return ( 
         <Grow in>
-        <Container>
-          <Grid className={classes.mainContainer} container justifyContent='space-between' alignItems='center'>
-            <Grid item xs={12} sm={7}>
-              <Posts setCurrentId={setCurrentId}/>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Form currentId={currentId} setCurrentId={setCurrentId}/>
-              <Paper className={classes.pagination} elevation={6}>
-                <Paginate/>
-              </Paper>
-            </Grid>
+      <Container maxWidth="xl">
+        <Grid container justify="space-between" alignItems="stretch" spacing={3} className={classes.gridContainer}>
+          <Grid item xs={12} sm={6} md={9}>
+            <Posts setCurrentId={setCurrentId} />
           </Grid>
-        </Container>
-      </Grow>
+          <Grid item xs={12} sm={6} md={3}>
+            <AppBar className={classes.appBarSearch} position="static" color="inherit">
+              <TextField 
+              name="search" 
+              variant="outlined" 
+              label="Search Memories" 
+              fullWidth 
+              value={search}
+              onChange={(e) => setCurrentId(e.target.value)} 
+              onKeyDown={handleKeyPress}
+              />
+              <ChipInput
+                style={{ margin: '10px 0' }}
+                value={tags}
+                onAdd={(chip) => handleAddChip(chip)}
+                onDelete={(chip) => handleDeleteChip(chip)}
+                label="Search Tags"
+                variant="outlined"
+              />
+              <Button onClick={searchPost} className={classes.searchButton} variant="contained" color="primary">Search</Button>
+            </AppBar>
+            <Form currentId={currentId} setCurrentId={setCurrentId} />
+            <Paper elevation={6}>
+              <Paginate />
+            </Paper>
+          </Grid>
+        </Grid>
+      </Container>
+    </Grow>
      );
 }
  
