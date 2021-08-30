@@ -40,7 +40,7 @@ const Auth = () => {
     if(isSignup){
       dispatch(signup(formData, history))
     } else{
-      dispatch(signin(formatData, history))
+      dispatch(signin(formData, history))
     }
   }
 
