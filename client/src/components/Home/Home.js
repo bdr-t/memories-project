@@ -5,7 +5,7 @@ import Posts from '../Posts/Posts'
 import Form from "../Form/Form"
 import {useDispatch} from 'react-redux'
 import {useEffect, useState} from 'react'
-import {getPosts} from '../../actions/posts'
+import {getPosts, getPostsBySearch} from '../../actions/posts'
 import useStyles from '../../App.styles'
 import Paginate from '../Pagination'
 
@@ -53,7 +53,7 @@ const Home = () => {
 
   const searchPost = () => {
     if (search.trim() || tags) {
-      // dispatch(getPostsBySearch({ search, tags: tags.join(',') }));
+      dispatch(getPostsBySearch({ search, tags: tags.join(',') }));
       // history.push(`/posts/search?searchQuery=${search || 'none'}&tags=${tags.join(',')}`);
     } else {
       history.push('/');
