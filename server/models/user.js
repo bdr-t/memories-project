@@ -7,7 +7,7 @@ const userSchema = mongoose.Schema({
     id: {type: 'string'}
 })
 
-const User = mongoose.model('PostMessage', userSchema)
+const User = mongoose.model('User', userSchema)
 
 module.exports = {
     User

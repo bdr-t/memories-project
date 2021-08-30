@@ -1,15 +1,14 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-
-import UserModal from "../models/user.js";
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const User = require('../models/user.js')
 
 const secret = 'test';
 
-export const signin = async (req, res) => {
+const signin = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const exsitingUser = await UserModal.findOne({ email });
+    const exsitingUser = await User.findOne({ email });
 
     if (!exsitingUser) return res.status(404).json({ message: "User doesn't exist" });
 
@@ -25,17 +24,17 @@ export const signin = async (req, res) => {
   }
 };
 
-export const signup = async (req, res) => {
+const signup = async (req, res) => {
   const { email, password, firstName, lastName } = req.body;
 
   try {
-    const exsitingUser = await UserModal.findOne({ email });
+    const exsitingUser = await User.findOne({ email });
 
     if (exsitingUser) return res.status(400).json({ message: "User already exists" });
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const result = await UserModal.create({ email, password: hashedPassword, name: `${firstName} ${lastName}` });
+    const result = await User.create({ email, password: hashedPassword, name: `${firstName} ${lastName}` });
 
     const token = jwt.sign( { email: result.email, id: result._id }, secret, { expiresIn: "1h" } );
 
@@ -46,3 +45,7 @@ export const signup = async (req, res) => {
     console.log(error);
   }
 };
+
+module.exports = {
+  signup, signin
+}
